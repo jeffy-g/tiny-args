@@ -8,18 +8,11 @@
 
 /**
  * @typedef {string | string[] | boolean | RegExp | number} TExtraArgsValue
+ * @typedef TArgConfig
+ * @prop {number} [startIndex] default `2`
+ * @prop {string} [prefix] default "-"
  */
-/** getExtraArgs default config.  */
-const ArgsConfig = {
-    /**
-     * @default 2
-     */
-    startIndex: 2,
-    /**
-     * @default "-"
-     */
-    prefix: "-",
-};
+
 /**
  * get arguments helper.  
  * extra params must be start with "-".
@@ -46,54 +39,55 @@ const ArgsConfig = {
  * if param value not specified -tag after then set value is "true".
  * 
  * @template {Record<string, TExtraArgsValue>} T
- * @param {typeof ArgsConfig} [args_config]
+ * @param {TArgConfig} [argsConfig]
  * @param {boolean} [debug]
  * @returns {T & { args?: string[]; }}
  */
-function getExtraArgs(args_config, debug = false) {
+function getExtraArgs(argsConfig, debug = false) {
 
     // debug log, if need.
     debug && console.log("process.argv: ", process.argv);
     // @ts- ignore will be not `Partial`
-    let actualConfig = /** @type {typeof ArgsConfig} */(args_config || {});
-    actualConfig = Object.assign(ArgsConfig, actualConfig);
+    let cfg = /** @type {TArgConfig} */(argsConfig || {});
+    cfg = Object.assign({ startIndex: 2, prefix: "-" }, cfg);
 
-    const varIndex = actualConfig.prefix.length;
-
-    const extra_index = actualConfig.startIndex || 2;
+    // option name index
+    const vIdx = cfg.prefix.length;
+    // extra index
+    const eIdx = cfg.startIndex || 2;
     /** @type {T & { args?: string[]; }} */
     const params = {};
 
-    if (process.argv.length > extra_index) {
-        const cmdArgs = process.argv;
-        for (let index = extra_index; index < cmdArgs.length;) {
-            const opt = cmdArgs[index++];
+    if (process.argv.length > eIdx) {
+        const cArgs = process.argv;
+        for (let idx = eIdx; idx < cArgs.length;) {
+            const opt = cArgs[idx++];
             if (opt) {
-                if (opt.startsWith(actualConfig.prefix)) {
+                if (opt.startsWith(cfg.prefix)) {
                     /** @type {TExtraArgsValue} */
-                    let value = cmdArgs[index];
-                    if (value === void 0 || value.startsWith(actualConfig.prefix)) {
-                        value = true;
+                    let v = cArgs[idx];
+                    if (v === void 0 || v.startsWith(cfg.prefix)) {
+                        v = true;
                     } else {
                         // DEVNOTE: now possible to process array parameters
                         // DEVNOTE: 2020/2/28 - support regex parameter
-                        if (/^\[.+\]$/.test(value) || /^\/[^/]+\/[gimuys]{0,6}$/.test(value)) {
+                        if (/^\[.+\]$/.test(v) || /^\/[^/]+\/[gimuys]{0,6}$/.test(v)) {
                             // value is array or regex
-                            value = /** @type {string[] | RegExp} */(eval(value));
-                        } else if (/\\,/.test(value)) { // not Comma Separated Value
+                            v = /** @type {string[] | RegExp} */(eval(v));
+                        } else if (/\\,/.test(v)) { // not Comma Separated Value
                             // DEVNOTE: fix comma in glob strings
-                            value = value.replace(/\\,/g, ",");
-                        } else if (/,/.test(value)) { // Comma Separated Value
-                            value = value.split(",");
-                        } else if (/^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(value)) {
+                            v = v.replace(/\\,/g, ",");
+                        } else if (/,/.test(v)) { // Comma Separated Value
+                            v = v.split(",");
+                        } else if (/^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v)) {
                             // DEVNOTE: 2022/05/15 - support number
                             //   "-1234,-.1234,1234.1234,1234.,0x12f".split(",").map(v => /^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v));
                             //     -> [true, true, true, true, true]
-                            value = +value;
+                            v = +v;
                         }
-                        index++;
+                        idx++;
                     }
-                    /** @type {any} */(params)[opt.substring(varIndex)] = value;
+                    /** @type {any} */(params)[opt.substring(vIdx)] = v;
                 } else {
                     let args = /** @type {string[]} */(params.args);
                     !args && (params.args = args = []);

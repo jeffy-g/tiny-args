@@ -6,3 +6,59 @@
 ![GitHub commit activity](https://img.shields.io/github/commit-activity/m/jeffy-g/tiny-args.svg?style=plastic)
 
 # tin-args
+
+
++ arg-test.js
+
+```js
+const getExtraArgs = require("tin-args");
+
+/**
+ * @typedef TArgs
+ * @prop {string | string[]} basePath scan base
+ * @prop {string[]} extras extra files
+ * @prop {string} dest output path
+ * @prop {boolean} r recursive?
+ * @prop {string} ext extension
+ * @prop {RegExp} test
+ */
+
+/**
+ * will be:
+ * ```ts
+ *  const params: TArgs & { args?: string[]; }
+ * ```
+ * @type {ReturnType<typeof getExtraArgs<TArgs>>}
+ */
+const params = getExtraArgs({ prefex: "--" });
+console.log(params);
+```
+
++ run `arg-test.js` with node
+
+```shell
+$ node ./arg-test --basePath build --r --extras "index.html,somename.js" --dest ./dist --ext ".js" --test "/\\.(j|t)s$/" .git/*
+{
+  basePath: 'build',
+  r: true,
+  extras: [ 'index.html', 'somename.js' ],
+  dest: './dist',
+  ext: '.js',
+  test: '//.(j|t)s$/',
+  args: [
+    '.git/COMMIT_EDITMSG',
+    '.git/config',
+    '.git/description',
+    '.git/FETCH_HEAD',
+    '.git/HEAD',
+    '.git/hooks',
+    '.git/index',
+    '.git/info',
+    '.git/logs',
+    '.git/objects',
+    '.git/ORIG_HEAD',
+    '.git/packed-refs',
+    '.git/refs'
+  ]
+}
+```
