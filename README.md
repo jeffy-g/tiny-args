@@ -7,6 +7,7 @@
 
 # tin-args
 
+  + Simple command line argument extraction script with no complicated feature
 
 + arg-test.js
 
