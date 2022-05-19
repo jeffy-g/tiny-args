@@ -39,34 +39,34 @@
  * if param value not specified -tag after then set value is "true".
  * 
  * @template {Record<string, TExtraArgsValue>} T
- * @param {TArgConfig} [argsConfig]
- * @param {boolean} [debug]
+ * @param {TArgConfig} [acfg]
+ * @param {boolean} [dbg]
  * @returns {T & { args?: string[]; }}
  */
-function getExtraArgs(argsConfig, debug = false) {
+function tinArgs(acfg, dbg = false) {
 
     // debug log, if need.
-    debug && console.log("process.argv: ", process.argv);
+    dbg && console.log("process.argv: ", process.argv);
     // @ts- ignore will be not `Partial`
-    let cfg = /** @type {TArgConfig} */(argsConfig || {});
-    cfg = Object.assign({ startIndex: 2, prefix: "-" }, cfg);
+    acfg = /** @type {Required<TArgConfig>} */(acfg || {});
 
+    const pfix = acfg.prefix || "-";
     // option name index
-    const vIdx = cfg.prefix.length;
+    const vIdx = pfix.length;
     // extra index
-    const eIdx = cfg.startIndex || 2;
+    const eIdx = acfg.startIndex || 2;
     /** @type {T & { args?: string[]; }} */
-    const params = {};
+    const pms = {};
 
     if (process.argv.length > eIdx) {
         const cArgs = process.argv;
         for (let idx = eIdx; idx < cArgs.length;) {
             const opt = cArgs[idx++];
             if (opt) {
-                if (opt.startsWith(cfg.prefix)) {
+                if (opt.startsWith(pfix)) {
                     /** @type {TExtraArgsValue} */
                     let v = cArgs[idx];
-                    if (v === void 0 || v.startsWith(cfg.prefix)) {
+                    if (v === void 0 || v.startsWith(pfix)) {
                         v = true;
                     } else {
                         // DEVNOTE: now possible to process array parameters
@@ -87,16 +87,14 @@ function getExtraArgs(argsConfig, debug = false) {
                         }
                         idx++;
                     }
-                    /** @type {any} */(params)[opt.substring(vIdx)] = v;
+                    /** @type {any} */(pms)[opt.substring(vIdx)] = v;
                 } else {
-                    let args = /** @type {string[]} */(params.args);
-                    !args && (params.args = args = []);
-                    args.push(opt);
+                    (pms.args || (pms.args = [])).push(opt);
                 }
             }
         }
     }
-    return params;
+    return pms;
 };
 
-module.exports = getExtraArgs;
+module.exports = tinArgs;

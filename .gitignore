@@ -103,3 +103,7 @@ dist
 # TernJS port file
 .tern-port
 /arg-test.js
+/arg-test.mjs
+/build
+/index.mjs
+/tsconfig.json

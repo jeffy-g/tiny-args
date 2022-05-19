@@ -38,7 +38,7 @@ console.log(params);
 + run `arg-test.js` with node
 
 ```shell
-$ node ./arg-test --basePath build --r --extras "index.html,somename.js" --dest ./dist --ext ".js" --test "/\\.(j|t)s$/" .git/*
+$ node ./arg-test --basePath build --r --extras "index.html,somename.js" --count 0x12ab --ext ".js" --test "/\\.(j|t)s$/" .git/*
 {
   basePath: 'build',
   r: true,
