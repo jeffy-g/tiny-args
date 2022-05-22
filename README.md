@@ -17,9 +17,9 @@ const getExtraArgs = require("tin-args");
 /**
  * @typedef TArgs
  * @prop {string | string[]} basePath scan base
- * @prop {string[]} extras extra files
- * @prop {string} dest output path
  * @prop {boolean} r recursive?
+ * @prop {string[]} extras extra files
+ * @prop {number} count
  * @prop {string} ext extension
  * @prop {RegExp} test
  */
@@ -43,7 +43,7 @@ $ node ./arg-test --basePath build --r --extras "index.html,somename.js" --count
   basePath: 'build',
   r: true,
   extras: [ 'index.html', 'somename.js' ],
-  dest: './dist',
+  count: 4779,
   ext: '.js',
   test: '//.(j|t)s$/',
   args: [
