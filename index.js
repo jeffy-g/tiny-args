@@ -20,7 +20,7 @@
  * > command example:
  * 
  * ```shell
- * node <script path> -minify -t es6 -values "value0,value1,value2" -array "['value0', 100, true, /\r?\n/g]" -regex "/\d+/g"
+ * node <script path> -minify -t es6 -values "value0,value1,value2" -array "['value0', 100, true, /\r?\n/g]" -regex "re/\d+/g"
  * ```
  *
  * + then resut is
@@ -71,7 +71,8 @@ function tinArgs(acfg, dbg = false) {
                     } else {
                         // DEVNOTE: now possible to process array parameters
                         // DEVNOTE: 2020/2/28 - support regex parameter
-                        if (/^\[.+\]$/.test(v) || /^\/[^/]+\/[gimuys]{0,6}$/.test(v)) {
+                        if (/^\[.+\]$/.test(v) || /^(?:re)?\/[^/]+\/[gimuys]{0,6}$/.test(v)) {
+                            /re\//.test(v) && (v = v.substring(2));
                             // value is array or regex
                             v = /** @type {string[] | RegExp} */(eval(v));
                         } else if (/\\,/.test(v)) { // not Comma Separated Value

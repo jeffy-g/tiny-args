@@ -63,3 +63,11 @@ $ node ./arg-test --basePath build --r --extras "index.html,somename.js" --count
   ]
 }
 ```
+
+## NOTE for regex param value
+
+  + If you use js regex as a parameter, you should be sure to recognize it as a regex object by adding `re` prefix.  
+    e.g - `"re/\\.(j|t)s$/g"`
+
+  + `yarn test -re "re/\\.(j|t)s$/g"`
+
