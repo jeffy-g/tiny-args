@@ -17,10 +17,10 @@ const getExtraArgs = require("tin-args");
 /**
  * @typedef TArgs
  * @prop {string | string[]} basePath scan base
- * @prop {boolean} r recursive?
- * @prop {string[]} extras extra files
- * @prop {number} count
- * @prop {string} ext extension
+ * @prop {boolean} minify use minify?
+ * @prop {string[]} values some values as array
+ * @prop {string[]} values2 some values as array
+ * @prop {number} factor
  * @prop {RegExp} test
  */
 
@@ -31,35 +31,38 @@ const getExtraArgs = require("tin-args");
  * ```
  * @type {ReturnType<typeof getExtraArgs<TArgs>>}
  */
-const params = getExtraArgs({ prefex: "--" });
+const params = getExtraArgs({ prefex: "-" });
 console.log(params);
 ```
 
 + run `arg-test.js` with node
 
 ```shell
-$ node ./arg-test --basePath build --r --extras "index.html,somename.js" --count 0x12ab --ext ".js" --test "/\\.(j|t)s$/" .git/*
+$ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify es6 -values "v0,v1,v2" -values2 v0,v1,v2 -a "['value0', 100, true, /\\r?\\n/g]" .git/*
 {
-  basePath: 'build',
-  r: true,
-  extras: [ 'index.html', 'somename.js' ],
-  count: 4779,
-  ext: '.js',
-  test: '//.(j|t)s$/',
+  test: /\.(t|j)s$/,
+  factor: 123.5,
+  minify: 'es6',
+  values: [ 'v0', 'v1', 'v2' ],
+  values2: [ 'v0', 'v1', 'v2' ],
+  a: [ 'value0', 100, true, /\r?\n/g ],
   args: [
     '.git/COMMIT_EDITMSG',
-    '.git/config',
-    '.git/description',
     '.git/FETCH_HEAD',
     '.git/HEAD',
+    '.git/ORIG_HEAD',
+    '.git/config',
+    '.git/description',
     '.git/hooks',
     '.git/index',
     '.git/info',
     '.git/logs',
     '.git/objects',
-    '.git/ORIG_HEAD',
     '.git/packed-refs',
-    '.git/refs'
+    '.git/refs',
+    '.git/tgitchangelist',
+    '.git/tortoisegit.data',
+    '.git/tortoisegit.index'
   ]
 }
 ```
