@@ -16,12 +16,12 @@ const getExtraArgs = require("tin-args");
 
 /**
  * @typedef TArgs
- * @prop {string | string[]} basePath scan base
+ * @prop {RegExp} test a regex
+ * @prop {number} factor a number
  * @prop {boolean} minify use minify?
- * @prop {string[]} values some values as array
- * @prop {string[]} values2 some values as array
- * @prop {number} factor
- * @prop {RegExp} test
+ * @prop {string[]} values some string values as array
+ * @prop {string[]} values2 some string values as array
+ * @prop {any[]} a mixed values
  */
 
 /**
@@ -38,11 +38,12 @@ console.log(params);
 + run `arg-test.js` with node
 
 ```shell
-$ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify es6 -values "v0,v1,v2" -values2 v0,v1,v2 -a "['value0', 100, true, /\\r?\\n/g]" .git/*
+$ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify -values "v0,v1,v2"\
+ -values2 v0,v1,v2 -a "['value0', 100, true, /\\r?\\n/g]" .git/*
 {
   test: /\.(t|j)s$/,
   factor: 123.5,
-  minify: 'es6',
+  minify: true,
   values: [ 'v0', 'v1', 'v2' ],
   values2: [ 'v0', 'v1', 'v2' ],
   a: [ 'value0', 100, true, /\r?\n/g ],
@@ -67,9 +68,9 @@ $ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify es6 -values "v0,v
 }
 ```
 
-## NOTE for regex param value
+## NOTE for `regex` param value
 
-  + If you use js regex as a parameter, you should be sure to recognize it as a regex object by adding `re` prefix.  
+  + If you use js `regex` as a parameter, you should be sure to recognize it as a regex object by adding `re` prefix.  
     e.g - `"re/\\.(j|t)s$/g"`
 
   + `yarn test -re "re/\\.(j|t)s$/g"`
