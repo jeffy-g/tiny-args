@@ -1,6 +1,6 @@
 {
   "name": "tin-args",
-  "version": "0.0.8",
+  "version": "0.0.10",
   "description": "Simple command line argument extraction script with no complicated feature",
   "main": "./index.js",
   "repository": "git@github.com:jeffy-g/tiny-args.git",
@@ -13,7 +13,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "node ./arg-test -test \"re/\\.(t|j)s$/\" -minify -t es6 -values \"value0,value1,value2\" -array \"['value0', 100, true, /\\r?\\n/g]\" .git/*"
+    "test": "node ./arg-test -test \"re/\\.(t|j)s$/\" -factor 123.5 -minify -values \"v0,v1,v2\" -values2 v0,v1,v2 -a \"['value0', 100, true, /\\r?\\n/g]\""
   },
   "devDependencies": {
     "@types/node": "^17.0.32"
