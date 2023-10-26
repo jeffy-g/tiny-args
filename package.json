@@ -1,13 +1,15 @@
 {
   "name": "tin-args",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "description": "Simple command line argument extraction script with no complicated feature",
   "main": "./index.js",
+  "types": "./index.d.ts",
   "repository": "git@github.com:jeffy-g/tiny-args.git",
   "author": "jeffy-g <hirotom1107@gmail.com>",
   "license": "MIT",
   "files": [
     "index.js",
+    "index.d.ts",
     "LICENSE",
     "package.json",
     "README.md"
