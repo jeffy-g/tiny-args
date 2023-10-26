@@ -41,7 +41,7 @@
  * @template {Record<string, TExtraArgsValue>} T
  * @param {TArgConfig} [acfg]
  * @param {boolean} [dbg]
- * @returns {T & { args?: string[]; }}
+ * @returns {T & { args?: string[]}}
  */
  const tinArgs = (acfg, dbg = false) => {
 
@@ -54,7 +54,7 @@
     // option name index
     const vIdx = pfix.length;
     // extra index
-    const eIdx = acfg.startIndex || 2, pms = /** @type {T & { args?: string[]; }} */({});
+    const eIdx = acfg.startIndex || 2, pms = /** @type {T & { args?: string[]}} */({});
 
     if (process.argv.length > eIdx) {
         const cArgs = process.argv;
