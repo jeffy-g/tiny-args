@@ -54,4 +54,13 @@ type TArgConfig = {
     prefix?: string;
 };
 
-export = tinArgs;
+/**
+ *
+ */
+declare const TinArgs: typeof tinArgs & {
+    // Since it is converted to an esm module by `node`,
+    // `default` becomes a main funciton.
+    default: typeof tinArgs;
+};
+
+export = TinArgs;
