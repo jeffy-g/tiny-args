@@ -38,8 +38,7 @@ console.log(params);
 + run `arg-test.js` with node
 
 ```shell
-$ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify -values "v0,v1,v2"\
- -values2 v0,v1,v2 -a "['value0', 100, true, /\\r?\\n/g]" .git/*
+$ yarn test .git/* # OR npm run test -- .git/*
 {
   test: /\.(t|j)s$/,
   factor: 123.5,
@@ -48,12 +47,9 @@ $ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify -values "v0,v1,v2
   values2: [ 'v0', 'v1', 'v2' ],
   a: [ 'value0', 100, true, /\r?\n/g ],
   args: [
-    '.git/COMMIT_EDITMSG',
-    '.git/FETCH_HEAD',
-    '.git/HEAD',
-    '.git/ORIG_HEAD',
     '.git/config',
     '.git/description',
+    '.git/HEAD',
     '.git/hooks',
     '.git/index',
     '.git/info',
@@ -61,7 +57,6 @@ $ node ./arg-test -test "re/\\.(t|j)s$/" -factor 123.5 -minify -values "v0,v1,v2
     '.git/objects',
     '.git/packed-refs',
     '.git/refs',
-    '.git/tgitchangelist',
     '.git/tortoisegit.data',
     '.git/tortoisegit.index'
   ]
