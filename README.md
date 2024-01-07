@@ -40,7 +40,7 @@ console.log(params);
 ```shell
 $ yarn test .git/* # OR npm run test -- .git/*
 {
-  test: /\.(t|j)s$/,
+  test: /(?<=reference path=")(\.)(?=\/index.d.ts")/,
   factor: 123.5,
   minify: true,
   values: [ 'v0', 'v1', 'v2' ],

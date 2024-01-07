@@ -69,7 +69,7 @@
                     } else {
                         // DEVNOTE: now possible to process array parameters
                         // DEVNOTE: 2020/2/28 - support regex parameter
-                        if (/^\[.+\]$/.test(v) || /^(?:re)?\/[^/]+\/[gimuys]{0,6}$/.test(v)) {
+                        if (/^\[.+\]$/.test(v) || /^(?:re)?\/[^]+\/[gimuys]{0,6}$/.test(v)) {
                             /^re\//.test(v) && (v = v.substring(2));
                             // value is array or regex
                             v = /** @type {string[] | RegExp} */(eval(v));
