@@ -43,57 +43,58 @@
  * @param {boolean} [dbg]
  * @returns {T & { args?: string[]}}
  */
- const tinArgs = (acfg, dbg = false) => {
+const tinArgs = (acfg, dbg = false) => {
 
-    // debug log, if need.
-    dbg && console.log("process.argv: ", process.argv);
-    // @ts- ignore will be not `Partial`
-    acfg = /** @type {Required<TArgConfig>} */(acfg || {});
+  // debug log, if need.
+  dbg && console.log("process.argv: ", process.argv);
+  // @ts- ignore will be not `Partial`
+  acfg = /** @type {Required<TArgConfig>} */(acfg || {});
 
-    const pfix = acfg.prefix || "-";
-    // option name index
-    const vIdx = pfix.length;
-    // extra index
-    const eIdx = acfg.startIndex || 2, pms = /** @type {T & { args?: string[]}} */({});
+  const pfix = acfg.prefix || "-";
+  // option name index
+  const vIdx = pfix.length;
+  // extra index
+  const eIdx = acfg.startIndex || 2, pms = /** @type {T & { args?: string[]}} */({});
 
-    if (process.argv.length > eIdx) {
-        const cArgs = process.argv;
-        for (let idx = eIdx; idx < cArgs.length;) {
-            const opt = cArgs[idx++];
-            if (opt) {
-                if (opt.startsWith(pfix)) {
-                    /** @type {TExtraArgsValue} */
-                    let v = cArgs[idx];
-                    if (v === void 0 || v.startsWith(pfix)) {
-                        v = true;
-                    } else {
-                        // DEVNOTE: now possible to process array parameters
-                        // DEVNOTE: 2020/2/28 - support regex parameter
-                        if (/^\[.+\]$/.test(v) || /^(?:re)?\/[^]+\/[gimuys]{0,6}$/.test(v)) {
-                            /^re\//.test(v) && (v = v.substring(2));
-                            // value is array or regex
-                            v = /** @type {string[] | RegExp} */(eval(v));
-                        } else if (/\\,/.test(v)) { // not Comma Separated Value
-                            // DEVNOTE: fix comma in glob strings
-                            v = v.replace(/\\,/g, ",");
-                        } else if (/,/.test(v)) { // Comma Separated Value
-                            v = v.split(",");
-                        } else if (/^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v)) {
-                            // DEVNOTE: 2022/05/15 - support number
-                            //   "-1234,-.1234,1234.1234,1234.,0x12f".split(",").map(v => /^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v));
-                            //     -> [true, true, true, true, true]
-                            v = +v;
-                        }
-                        idx++;
-                    }
-                    /** @type {any} */(pms)[opt.substring(vIdx)] = v;
-                } else {
-                    (pms.args || (pms.args = [])).push(opt);
-                }
+  if (process.argv.length > eIdx) {
+    const cArgs = process.argv;
+    for (let idx = eIdx, argsLen = cArgs.length; idx < argsLen;) {
+      const opt = cArgs[idx++];
+      if (opt) {
+        if (opt.startsWith(pfix)) {
+          /** @type {TExtraArgsValue} */
+          let v = cArgs[idx];
+          if (v === void 0 || v.startsWith(pfix)) {
+            v = true;
+          } else {
+            // DEVNOTE: now possible to process array parameters
+            // DEVNOTE: 2020/2/28 - support regex parameter
+            if (/^\[.+\]$/.test(v) || /^(?:re)?\/[^]+\/[dgimsuy]{0,7}$/.test(v)) {
+              /^re\//.test(v) && (v = v.substring(2));
+              // value is array or regex
+              v = /** @type {string[] | RegExp} */(eval(v));
+            } else if (/\\,/.test(v)) { // not Comma Separated Value
+              // DEVNOTE: fix comma in glob strings
+              v = v.replace(/\\,/g, ",");
+            } else if (/,/.test(v)) { // Comma Separated Value
+              // NOTE: There should be no whitespace before or after the separator, such as "a,b,c".
+              v = v.split(",");
+            } else if (/^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v)) {
+              // DEVNOTE: 2022/05/15 - support number
+              //   "-1234,-.1234,1234.1234,1234.,0x12f".split(",").map(v => /^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v));
+              //     -> [true, true, true, true, true]
+              v = +v;
             }
+            idx++;
+          }
+          /** @type {any} */(pms)[opt.slice(vIdx)] = v;
+        } else {
+          (pms.args || (pms.args = [])).push(opt);
         }
+      }
     }
-    return pms;
+  }
+  return pms;
 };
 
 module.exports = tinArgs;

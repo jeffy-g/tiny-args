@@ -107,3 +107,6 @@ dist
 /build
 /index.mjs
 /tsconfig.json
+
+regexes.js
+yarn.lock
