@@ -6,6 +6,8 @@
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
 
+export = tinArgs;
+
 /**
  * get arguments helper.
  * extra params must be start with "-".
@@ -31,19 +33,18 @@
  *
  * if param value not specified -tag after then set value is "true".
  *
- * @template {Record<string, TExtraArgsValue>} T
- * @param {TArgConfig} [acfg]
+ * @template {Record<string, tinArgs.TExtraArgsValue>} T
+ * @param {tinArgs.TArgConfig} [acfg]
  * @param {boolean} [dbg]
  * @returns {T & { args?: string[]}}
  */
-declare function tinArgs<T extends Record<string, TExtraArgsValue>>(acfg?: TArgConfig, dbg?: boolean): T & {
-    args?: string[];
+declare function tinArgs<T extends Record<string, tinArgs.TExtraArgsValue>>(acfg?: tinArgs.TArgConfig, dbg?: boolean): T & {
+  args?: string[];
 };
+
 declare namespace tinArgs {
-    export { TExtraArgsValue, TArgConfig };
-}
-type TExtraArgsValue = string | string[] | boolean | RegExp | number;
-type TArgConfig = {
+  export type TExtraArgsValue = string | string[] | boolean | RegExp | number;
+  export type TArgConfig = {
     /**
      * default `2`
      */
@@ -52,15 +53,9 @@ type TArgConfig = {
      * default "-"
      */
     prefix?: string;
-};
-
-/**
- *
- */
-declare const TinArgs: typeof tinArgs & {
-    // Since it is converted to an esm module by `node`,
-    // `default` becomes a main funciton.
-    default: typeof tinArgs;
-};
-
-export = TinArgs;
+  };
+  // Since it is converted to an esm module by `node`,
+  // `default` becomes a main funciton.
+  const _default: typeof tinArgs;
+  export { _default as default };
+}

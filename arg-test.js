@@ -19,5 +19,5 @@ const tinArgs = require("./");
  * ```
  * @type {ReturnType<typeof tinArgs<TArgs>>}
  */
-const params = tinArgs({ prefix: "-" });
+const params = tinArgs(undefined, true);
 console.log(params);
