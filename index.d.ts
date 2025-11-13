@@ -9,11 +9,11 @@
 export = tinArgs;
 
 /**
- * get arguments helper.
+ * get arguments helper.  
  * extra params must be start with "-".
- *
+ * 
  * > command example:
- *
+ * 
  * ```shell
  * node <script path> -minify -t es6 -values "value0,value1,value2" -array "['value0', 100, true, /\r?\n/g]" -regex "re/\d+/g"
  * ```
@@ -32,30 +32,30 @@ export = tinArgs;
  * ```
  *
  * if param value not specified -tag after then set value is "true".
- *
- * @template {Record<string, tinArgs.TExtraArgsValue>} T
- * @param {tinArgs.TArgConfig} [acfg]
- * @param {boolean} [dbg]
+ * 
+ * @template {Record<string, NsTinArgs.TExtraArgsValue>} T
+ * @param {NsTinArgs.TArgConfig=} acfg
+ * @param {boolean=} dbg
  * @returns {T & { args?: string[]}}
  */
-declare function tinArgs<T extends Record<string, tinArgs.TExtraArgsValue>>(acfg?: tinArgs.TArgConfig, dbg?: boolean): T & {
+declare function tinArgs<T extends Record<string, NsTinArgs.TExtraArgsValue>>(acfg?: NsTinArgs.TArgConfig, dbg?: boolean): T & {
   args?: string[];
 };
 
 declare namespace tinArgs {
-  export type TExtraArgsValue = string | string[] | boolean | RegExp | number;
-  export type TArgConfig = {
-    /**
-     * default `2`
-     */
-    startIndex?: number;
-    /**
-     * default "-"
-     */
-    prefix?: string;
-  };
   // Since it is converted to an esm module by `node`,
   // `default` becomes a main funciton.
   const _default: typeof tinArgs;
   export { _default as default };
+}
+
+declare global {
+  namespace NsTinArgs {
+    export type TExtraArgsValue = string | number | boolean | RegExp | string[];
+    export type TTinArgsKV = Record<string, TExtraArgsValue>;
+    export type TArgConfig = {
+      startIndex?: number;
+      prefix?: string;
+    };
+  }
 }

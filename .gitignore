@@ -110,3 +110,5 @@ dist
 
 regexes.js
 yarn.lock
+memo.md
+/sample.ts

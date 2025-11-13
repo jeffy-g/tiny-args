@@ -5,9 +5,11 @@
   https://opensource.org/licenses/mit-license.php
  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 */
+/// <reference path="../index.d.ts"/>
 
 /**
  * @typedef {string | string[] | boolean | RegExp | number} TExtraArgsValue
+ * @typedef {[string, string, "true" | "false"]} TRegexExecCustom
  * @typedef TArgConfig
  * @prop {number} [startIndex] default `2`
  * @prop {string} [prefix] default "-"
@@ -38,8 +40,8 @@
  *
  * if param value not specified -tag after then set value is "true".
  * 
- * @template {Record<string, TExtraArgsValue>} T
- * @param {TArgConfig} [acfg]
+ * @template {Record<string, NsTinArgs.TExtraArgsValue>} T
+ * @param {NsTinArgs.TArgConfig} [acfg]
  * @param {boolean} [dbg]
  * @returns {T & { args?: string[]}}
  */
@@ -48,7 +50,7 @@ const tinArgs = (acfg, dbg = false) => {
   // debug log, if need.
   dbg && console.log("process.argv: ", process.argv);
   // @ts- ignore will be not `Partial`
-  acfg = /** @type {Required<TArgConfig>} */(acfg || {});
+  acfg = /** @type {Required<NsTinArgs.TArgConfig>} */(acfg || {});
 
   const pfix = acfg.prefix || "-";
   // option name index
@@ -59,10 +61,20 @@ const tinArgs = (acfg, dbg = false) => {
   if (process.argv.length > eIdx) {
     const cArgs = process.argv;
     for (let idx = eIdx, argsLen = cArgs.length; idx < argsLen;) {
-      const opt = cArgs[idx++];
-      if (opt) {
-        if (opt.startsWith(pfix)) {
-          /** @type {TExtraArgsValue} */
+      const optOrArg = cArgs[idx++];
+      if (optOrArg) {
+        if (optOrArg.startsWith(pfix)) {
+          // 2025/11/14 3:18:58
+          const fallback = optOrArg.slice(vIdx);
+          /** @type {TRegexExecCustom} */
+          const [, paramName = fallback, bool] = /^([^:=]+)(?:[:=]{1}([^:=]+))?$/.exec(fallback) || /** @type {any} */([]);
+          // check for
+          if (bool) {
+            (/** @type {NsTinArgs.TTinArgsKV} */(pms))[paramName] = boolMap[bool];
+            continue;
+          }
+
+          /** @type {NsTinArgs.TExtraArgsValue} */
           let v = cArgs[idx];
           if (v === void 0 || v.startsWith(pfix)) {
             v = true;
@@ -85,16 +97,23 @@ const tinArgs = (acfg, dbg = false) => {
               //     -> [true, true, true, true, true]
               v = +v;
             }
+
             idx++;
           }
-          /** @type {any} */(pms)[opt.slice(vIdx)] = v;
+
+          (/** @type {NsTinArgs.TTinArgsKV} */(pms))[paramName] = v;
         } else {
-          (pms.args || (pms.args = [])).push(opt);
+          (pms.args || (pms.args = [])).push(optOrArg);
         }
       }
     }
   }
+
   return pms;
+};
+
+const boolMap = {
+  true: true, false: false
 };
 
 module.exports = tinArgs;

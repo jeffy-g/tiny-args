@@ -14,6 +14,7 @@
     "feature"
   ],
   "main": "./index.js",
+  "type": "commonjs",
   "types": "./index.d.ts",
   "repository": "git@github.com:jeffy-g/tiny-args.git",
   "author": "jeffy-g <hirotom1107@gmail.com>",
@@ -26,6 +27,10 @@
     "README.md"
   ],
   "scripts": {
+    "build": "tsc",
+    "postbuild": "yarn del:crap && prettier --ignore-path '' -w build && yarn minify",
+    "minify": "cat build/dev.js > build/index.js && jstool -cmd rmc -basePath build -test re/index\\.js/ && jstool -cmd minify -basePath build -test re/index\\.js/",
+    "del:crap": "sed -i -z -E 's/\\\"use strict\\\";\\n//' ./build/*.js",
     "test": "node ./arg-test -test \"re/(?<=reference path=\\\")(\\.)(?=\\/index.d.ts\\\")/\" -factor 123.5 -minify -values \"v0,v1,v2\" -values2 v0,v1,v2 -a \"['value0', 100, true, /\\r?\\n/g]\""
   },
   "devDependencies": {
