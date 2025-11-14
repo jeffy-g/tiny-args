@@ -8,11 +8,7 @@
 /// <reference path="../index.d.ts"/>
 
 /**
- * @typedef {string | string[] | boolean | RegExp | number} TExtraArgsValue
  * @typedef {[string, string, string | undefined]} TRegexExecCustom
- * @typedef TArgConfig
- * @prop {number} [startIndex] default `2`
- * @prop {string} [prefix] default "-"
  */
 
 const boolMap = {
@@ -135,5 +131,6 @@ const tinArgs = (acfg, dbg = false) => {
 
   return pms;
 };
+tinArgs.version = "v0.1.0";
 
 module.exports = tinArgs;

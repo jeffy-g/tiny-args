@@ -43,6 +43,7 @@ declare function tinArgs<T extends Record<string, NsTinArgs.TExtraArgsValue>>(ac
 };
 
 declare namespace tinArgs {
+  export const version: string;
   // Since it is converted to an esm module by `node`,
   // `default` becomes a main funciton.
   const _default: typeof tinArgs;

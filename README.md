@@ -7,23 +7,29 @@
 
 # tin-args
 
-A **simple command-line argument parser** for Node.js with no external dependencies.  
-It automatically parses booleans, numbers, arrays, RegExps, and string values from `-key value` style inputs.
+A simple, zero-dependency command-line argument parser for Node.js.  
+Parses booleans, numbers, arrays, RegExps, and strings using `-key:value`, `-key=value`, or `-key value` syntax.
 
-> **Note:** Only single-dash (`-option`) arguments are supported.  
-> If you're expecting `--long-option` support, consider alternatives like `minimist`, `yargs`.
+> ### Note:
+
++ The default option prefix is `-`. You can change it (e.g. to `--`) via `tinArgs({ prefix: "--" })`.  
+  Can also set characters other than `-`.
 
 ---
 
 ## ✨ Features
 
-- Single-dash CLI options like `-minify true`, `-factor 123.5`, `-regex "re/\\d+/g"` supported
-- Auto-detects:
-  - Numbers: `-num 123`
-  - Booleans: `-flag`
-  - Arrays: `-list "v1,v2,v3"`
-  - Regex: `-re "re/\\.(j|t)s$/g"`
-- Ignores positional args and collects them into `args: string[]`
+- KV pair syntax: `-key:value`, `-key=value`.
+- Flexible value syntax: also supports `-key value`.
+- Auto-detects and parses:
+  - Numbers: `-n:123`, `-n:-123.45`, `-n:0x12ab` (direct numeric conversion).
+  - Booleans: `-flag` (becomes `true`), or `-flag:true`, `-flag:false`.
+  - Arrays: `-list:"a,b,c"` becomes `['a', 'b', 'c']`.
+  - RegExp: `-p:r/\\.(j|t)s/i` or `-p:re/\\.(j|t)s/i`.
+  - Strings: quotes are optional; preserved as needed.
+- Escaped commas: use `\\,` to keep commas in a single string (no splitting).
+- Positional arguments: non-option args are collected into `args: string[]`.
+- Configurable parsing: `{ prefix?: string; startIndex?: number }`.
 
 ---
 
@@ -39,63 +45,46 @@ yarn add tin-args
 
 ## 🚀 Usage
 
+Create a script, for example `my-script.js`:
 ```js
-const getExtraArgs = require("tin-args");
+const tinArgs = require("tin-args");
 
+// The generic <T> is optional but provides type hints for the output.
 /**
  * @typedef TArgs
- * @prop {RegExp} test A regex value
- * @prop {number} factor A numeric value
- * @prop {boolean} minify A boolean flag
- * @prop {string[]} values Array of strings
- * @prop {string[]} values2 Array of strings
- * @prop {any[]} a Array of mixed values
+ * @prop {boolean} isOk
+ * @prop {number} count
+ * @prop {number} num
+ * @prop {string[]} extras
+ * @prop {RegExp} pattern
  */
 
-/**
- * will be:
- * ```ts
- *  const params: TArgs & { args?: string[]; }
- * ```
- * @type {ReturnType<typeof getExtraArgs<TArgs>>}
- */
-const params = getExtraArgs({ prefix: "-" });
+/** @type {ReturnType<typeof tinArgs<TArgs>>} */
+const params = tinArgs();
 
 console.log(params);
 ```
 
-### CLI Example:
+### CLI Example
 
-+ run `arg-test.js` with node
+Run the script from your terminal with various arguments:
 
 ```shell
-$ yarn test .git/* # OR npm run test -- .git/*
+$ node my-script.js -isOk:true -count:0x12ab -num:-123.45 -extras:"a,b,c" -regex:"re/\.(j|t)s$/gi" some/path
 ```
 
-Output:
+### Output
 
-```shell
+The `params` object will look like this:
+
+```js
 {
-  test: /(?<=reference path=")(\.)(?=\/index.d.ts")/,
-  factor: 123.5,
-  minify: true,
-  values: [ 'v0', 'v1', 'v2' ],
-  values2: [ 'v0', 'v1', 'v2' ],
-  a: [ 'value0', 100, true, /\r?\n/g ],
-  args: [
-    '.git/config',
-    '.git/description',
-    '.git/HEAD',
-    '.git/hooks',
-    '.git/index',
-    '.git/info',
-    '.git/logs',
-    '.git/objects',
-    '.git/packed-refs',
-    '.git/refs',
-    '.git/tortoisegit.data',
-    '.git/tortoisegit.index'
-  ]
+  isOk: true,
+  count: 4779,
+  num: -123.45,
+  extras: [ 'a', 'b', 'c' ],
+  regex: /\.(j|t)s$/gi,
+  args: [ 'some/path' ]
 }
 ```
 
@@ -103,14 +92,54 @@ Output:
 
 ## 🧠 Notes on RegExp values
 
-If you want the parser to recognize a RegExp, use the `re` prefix:
+To pass a `RegExp`, prefix the pattern with `re/` or `r/`:
 
 ```bash
-node arg-test.js -re "re/\\.(j|t)s$/g"
+# quoted examples (recommended)
+$ node arg-test.js -pattern:"re/\.(j|t)s$/gi" # 🆗️ 
+$ node arg-test.js -pattern 'r/\.(j|t)s$/gi' # 🆗️
+# unquoted may cause shell parsing errors if it contains (), [], or |
+$ node arg-test.js -pattern r/\.(j|t)s$/gi # ❌ may error depending on shell
+$ node arg-test.js -pattern r/\.mjs$/gi # 🆗️
+$ node arg-test.js -pattern r/a|b/gi # ❌ error
+$ node arg-test.js -pattern 'r/a|b/gi' # 🆗️
+$ node arg-test.js -pattern 'r/[0-9a-z]/gi' # 🆗️
+$ node arg-test.js -pattern r/[0-9a-z]/gi # ❌ error
 ```
+
+> ### TIP:
+>
+> When your regex contains special shell characters like __`(`__, __`)`__, __`|`__, __`[`__, or __`]`__,  
+  you may need to wrap the argument in quotes to prevent the shell from interpreting them.
+>
+> + `r/[0-9a-z]/gi` -> `"r/[0-9a-z]/gi"`
+>
+> In such cases, you may also need to escape quotes (`"`) or other characters appropriately depending on your shell.
+
+### Escaped commas
+
+Comma-separated values are split into arrays. To keep commas as literal characters in a single string, escape them with a backslash:
+
+```bash
+$ node my-script.js -list:"a,b,c"           # -> ["a","b","c"]
+$ node my-script.js -glob:"src\\,test/*.js" # -> "src,test/*.js"
+```
+
+---
+
+## 🤝 For Contributors
+
+This project uses several tools for development (e.g., `typescript` for type-checking, `prettier` for formatting). If you clone this repository to contribute, install these dependencies with:
+
+```bash
+npm install
+# or
+yarn
+```
+This will install all the necessary packages listed in `devDependencies` and `peerDependencies`.
 
 ---
 
 ## 📄 License
 
-MIT © 2022 [jeffy-g](mailto:hirotom1107@gmail.com)
+MIT © 2022 [jeffy-g](https://github.com/jeffy-g)

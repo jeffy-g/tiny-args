@@ -25,4 +25,4 @@ console.log("0.0.18.js:", oldParams);
  * @type {ReturnType<typeof tinArgs<TArgs>>}
  */
 const params = tinArgs();
-console.log("dev.js:", params);
+console.log(`dev.js(${tinArgs.version}):`, params);
