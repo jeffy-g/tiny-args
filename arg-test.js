@@ -1,4 +1,6 @@
-const tinArgs = require("./src/dev");
+const prevVer = require("./src/0.0.18");
+const tinArgs = require("./index.js");
+// const tinArgs = require("./src/dev.js");
 
 /**
  * @typedef TArgs
@@ -10,9 +12,6 @@ const tinArgs = require("./src/dev");
  * @prop {RegExp} test
  */
 
-// node ./arg-test -basePath:true -r -extras "index.html,somename.js" -count 0x12ab -ext ".js" -test "/\\.(j|t)s$/" .git/*
-// node ./arg-test -basePath build -r -extras "index.html,somename.js" -count 0x12ab -ext ".js" -test "/\\.(j|t)s$/" .git/*
-// node ./arg-test -test "re/\\.(t|j)s$/" -minify -t es6 -values "v0,v1,v2" -values2 v0,v1,v2 -a "['value0', 100, true, /\\r?\\n/g]" .git/*
 /**
  * will be:
  * ```ts
@@ -20,6 +19,10 @@ const tinArgs = require("./src/dev");
  * ```
  * @type {ReturnType<typeof tinArgs<TArgs>>}
  */
-const params = tinArgs(undefined, true);
-/** @type {NsTinArgs.TTinArgsKV} */
-console.log(params);
+const oldParams = prevVer(null, true);
+console.log("0.0.18.js:", oldParams);
+/**
+ * @type {ReturnType<typeof tinArgs<TArgs>>}
+ */
+const params = tinArgs();
+console.log("dev.js:", params);

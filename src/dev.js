@@ -1,25 +1,65 @@
 /*!
- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
   Copyright (C) 2022 jeffy-g <hirotom1107@gmail.com>
   Released under the MIT license
   https://opensource.org/licenses/mit-license.php
- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+ - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 */
 /// <reference path="../index.d.ts"/>
 
 /**
  * @typedef {string | string[] | boolean | RegExp | number} TExtraArgsValue
- * @typedef {[string, string, "true" | "false"]} TRegexExecCustom
+ * @typedef {[string, string, string | undefined]} TRegexExecCustom
  * @typedef TArgConfig
  * @prop {number} [startIndex] default `2`
  * @prop {string} [prefix] default "-"
  */
 
+const boolMap = {
+  true: true, false: false
+};
+/**
+ * Support **KV pair**
+ * 
+ * @param {string} v 
+ * @returns {NsTinArgs.TExtraArgsValue}
+ * @date 2025/11/14
+ * @since v0.1.0
+ * @summary 2025/11/14 - support short prefix "r" for regex value, direct number convert
+ */
+const parseValue = (v) => {
+
+  const bool = boolMap[/** @type {keyof boolMap} */(v)];
+  if (bool !== undefined) {
+    return bool;
+  }
+
+  // DEVNOTE: now possible to process array parameters
+  // DEVNOTE: 2020/2/28 - support regex parameter
+  // DEVNOTE: 2025/11/14 - support short prefix "r"
+  if (/^\[.+\]$/.test(v) || /^(?:re|r)?\/[^]+\/[dgimsuy]{0,7}$/.test(v)) {
+    /^(?:re|r)\//.test(v) && (v = v.slice(v.indexOf("/")));
+    // value is array or regex
+    return /** @type {string[] | RegExp} */(eval(v));
+  } else if (/\\,/.test(v)) { // not Comma Separated Value
+    // DEVNOTE: fix comma in glob strings
+    return v.replace(/\\,/g, ",");
+  } else if (/,/.test(v)) { // Comma Separated Value
+    // NOTE: There should be no whitespace before or after the separator, such as "a,b,c".
+    return v.split(",");
+  } else {
+    // DEVNOTE: 2025/11/14 - Abolish regex based numeric string validation and try to convert directly with the "+" operator
+    const num = +v;
+    if (Number.isFinite(num)) return num;
+    return v;
+  }
+};
+
 /**
  * get arguments helper.  
  * extra params must be start with "-".
  * 
- * > command example:
+ * > command example: 
  * 
  * ```shell
  * node <script path> -minify -t es6 -values "value0,value1,value2" -array "['value0', 100, true, /\r?\n/g]" -regex "re/\d+/g"
@@ -41,15 +81,18 @@
  * if param value not specified -tag after then set value is "true".
  * 
  * @template {Record<string, NsTinArgs.TExtraArgsValue>} T
- * @param {NsTinArgs.TArgConfig} [acfg]
- * @param {boolean} [dbg]
+ * @param {NsTinArgs.TArgConfig?=} acfg
+ * @param {boolean?=} dbg
  * @returns {T & { args?: string[]}}
  */
 const tinArgs = (acfg, dbg = false) => {
 
+  const cArgs = process.argv;
+
   // debug log, if need.
-  dbg && console.log("process.argv: ", process.argv);
-  // @ts- ignore will be not `Partial`
+  dbg && console.log("process.argv: ", cArgs);
+
+  // DEVNOTE: 2025/11/14 - Use "||" operator for legacy node support (Don't use the "??" operator)
   acfg = /** @type {Required<NsTinArgs.TArgConfig>} */(acfg || {});
 
   const pfix = acfg.prefix || "-";
@@ -58,51 +101,32 @@ const tinArgs = (acfg, dbg = false) => {
   // extra index
   const eIdx = acfg.startIndex || 2, pms = /** @type {T & { args?: string[]}} */({});
 
-  if (process.argv.length > eIdx) {
-    const cArgs = process.argv;
+  if (cArgs.length > eIdx) {
     for (let idx = eIdx, argsLen = cArgs.length; idx < argsLen;) {
       const optOrArg = cArgs[idx++];
       if (optOrArg) {
-        if (optOrArg.startsWith(pfix)) {
-          // 2025/11/14 3:18:58
+        if (optOrArg.startsWith(pfix)) { // means option parameter
+
+          // DEVNOTE: 2025/11/14 - support short prefix "r" for regex value, direct number convert
           const fallback = optOrArg.slice(vIdx);
           /** @type {TRegexExecCustom} */
-          const [, paramName = fallback, bool] = /^([^:=]+)(?:[:=]{1}([^:=]+))?$/.exec(fallback) || /** @type {any} */([]);
-          // check for
-          if (bool) {
-            (/** @type {NsTinArgs.TTinArgsKV} */(pms))[paramName] = boolMap[bool];
-            continue;
-          }
+          const [, paramName = fallback, boolOrNot] = /^([^:=]+)(?:[:=](.+))?$/.exec(fallback) || /** @type {any} */([]);
 
           /** @type {NsTinArgs.TExtraArgsValue} */
-          let v = cArgs[idx];
-          if (v === void 0 || v.startsWith(pfix)) {
-            v = true;
+          let optValue;
+          if (boolOrNot) { // -bool:true, -num:numberStr, -regex:"re/regexExpression/g", ...
+            optValue = parseValue(boolOrNot);
           } else {
-            // DEVNOTE: now possible to process array parameters
-            // DEVNOTE: 2020/2/28 - support regex parameter
-            if (/^\[.+\]$/.test(v) || /^(?:re)?\/[^]+\/[dgimsuy]{0,7}$/.test(v)) {
-              /^re\//.test(v) && (v = v.substring(2));
-              // value is array or regex
-              v = /** @type {string[] | RegExp} */(eval(v));
-            } else if (/\\,/.test(v)) { // not Comma Separated Value
-              // DEVNOTE: fix comma in glob strings
-              v = v.replace(/\\,/g, ",");
-            } else if (/,/.test(v)) { // Comma Separated Value
-              // NOTE: There should be no whitespace before or after the separator, such as "a,b,c".
-              v = v.split(",");
-            } else if (/^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v)) {
-              // DEVNOTE: 2022/05/15 - support number
-              //   "-1234,-.1234,1234.1234,1234.,0x12f".split(",").map(v => /^(?:-?\.?\d+(?:\.\d*)?|0x[\da-f]+)$/i.test(v));
-              //     -> [true, true, true, true, true]
-              v = +v;
+            optValue = cArgs[idx];
+            if (optValue === void 0 || optValue.startsWith(pfix)) {
+              optValue = true;
+            } else {
+              optValue = parseValue(optValue);
+              idx++;
             }
-
-            idx++;
           }
-
-          (/** @type {NsTinArgs.TTinArgsKV} */(pms))[paramName] = v;
-        } else {
+          (/** @type {NsTinArgs.TTinArgsKV} */(pms))[paramName] = optValue;
+        } else { // means not option parameter
           (pms.args || (pms.args = [])).push(optOrArg);
         }
       }
@@ -110,10 +134,6 @@ const tinArgs = (acfg, dbg = false) => {
   }
 
   return pms;
-};
-
-const boolMap = {
-  true: true, false: false
 };
 
 module.exports = tinArgs;

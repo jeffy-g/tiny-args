@@ -34,11 +34,11 @@ export = tinArgs;
  * if param value not specified -tag after then set value is "true".
  * 
  * @template {Record<string, NsTinArgs.TExtraArgsValue>} T
- * @param {NsTinArgs.TArgConfig=} acfg
- * @param {boolean=} dbg
+ * @param {NsTinArgs.TArgConfig?=} acfg
+ * @param {boolean?=} dbg
  * @returns {T & { args?: string[]}}
  */
-declare function tinArgs<T extends Record<string, NsTinArgs.TExtraArgsValue>>(acfg?: NsTinArgs.TArgConfig, dbg?: boolean): T & {
+declare function tinArgs<T extends Record<string, NsTinArgs.TExtraArgsValue>>(acfg?: NsTinArgs.TArgConfig | null, dbg?: boolean | null): T & {
   args?: string[];
 };
 
@@ -51,7 +51,8 @@ declare namespace tinArgs {
 
 declare global {
   namespace NsTinArgs {
-    export type TExtraArgsValue = string | number | boolean | RegExp | string[];
+    export type TExtraArgsValueBase = string | number | boolean | RegExp;
+    export type TExtraArgsValue = TExtraArgsValueBase | TExtraArgsValueBase[];
     export type TTinArgsKV = Record<string, TExtraArgsValue>;
     export type TArgConfig = {
       startIndex?: number;

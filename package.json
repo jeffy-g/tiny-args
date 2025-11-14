@@ -1,6 +1,6 @@
 {
   "name": "tin-args",
-  "version": "0.0.17",
+  "version": "0.1.0",
   "description": "Simple command line argument extraction script with no complicated feature",
   "keywords": [
     "args",
@@ -27,13 +27,22 @@
     "README.md"
   ],
   "scripts": {
+    "prebuild": "rimraf -g build/*",
     "build": "tsc",
-    "postbuild": "yarn del:crap && prettier --ignore-path '' -w build && yarn minify",
+    "postbuild": "yarn del:strictTag && prettier --ignore-path '' -w build && yarn minify && cat build/index.mini.js > ./index.js",
     "minify": "cat build/dev.js > build/index.js && jstool -cmd rmc -basePath build -test re/index\\.js/ && jstool -cmd minify -basePath build -test re/index\\.js/",
-    "del:crap": "sed -i -z -E 's/\\\"use strict\\\";\\n//' ./build/*.js",
-    "test": "node ./arg-test -test \"re/(?<=reference path=\\\")(\\.)(?=\\/index.d.ts\\\")/\" -factor 123.5 -minify -values \"v0,v1,v2\" -values2 v0,v1,v2 -a \"['value0', 100, true, /\\r?\\n/g]\""
+    "del:strictTag": "sed -i -zE 's/\\\"use strict\\\";\\n//' ./build/*.js",
+    "test": "node ./arg-test -test \"re/(?<=reference path=\\\")(\\.)(?=\\/index.d.ts\\\")/\" -factor 123.5 -minify -values \"v0,v1,v2\" -values2 v0,v1,v2 -a \"['value0', 100, true, /\\r?\\n/g]\"",
+    "test2": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:1.e3 -test \"re/\\.(j|t)s$/\" -str=\"ok\" -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\"",
+    "test3": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:-1.e3 -test \"r/\\.(j|t)s$/\" -str=ok -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\""
   },
   "devDependencies": {
     "@types/node": "^17.0.32"
+  },
+  "peerDependencies": {
+    "typescript": "*",
+    "rimraf": "*",
+    "prettier": "*",
+    "js-dev-tool": "*"
   }
 }
