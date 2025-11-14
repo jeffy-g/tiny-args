@@ -1,6 +1,6 @@
 {
   "name": "tin-args",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Simple command line argument extraction script with no complicated feature",
   "keywords": [
     "args",
