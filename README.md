@@ -105,16 +105,90 @@ $ node arg-test.js -pattern r/a|b/gi # ❌ error
 $ node arg-test.js -pattern 'r/a|b/gi' # 🆗️
 $ node arg-test.js -pattern 'r/[0-9a-z]/gi' # 🆗️
 $ node arg-test.js -pattern r/[0-9a-z]/gi # ❌ error
+# "debug": "node ./arg-test -re0 /[a-z0-0]/gim -re1 /\\.m?js$/gim -re2 \"/\\.(j|t)s$/gim\" -re3 \"/a|b/gi\" -regex:\"/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\""
+node ./arg-test -re0 "r/[a-z0-0]/gim" -re1 "r/\.m?js$/gim" -re2 "r/\.(j|t)s$/gim" -re3 "r/a|b/gi" -regex:"r/(?<=reference path=\")(\.\.)(?=\/index.d.ts\")/"
 ```
 
-> ### TIP:
->
-> When your regex contains special shell characters like __`(`__, __`)`__, __`|`__, __`[`__, or __`]`__,  
-  you may need to wrap the argument in quotes to prevent the shell from interpreting them.
->
-> + `r/[0-9a-z]/gi` -> `"r/[0-9a-z]/gi"`
->
-> In such cases, you may also need to escape quotes (`"`) or other characters appropriately depending on your shell.
+---
+
+### Handling JavaScript RegExp CLI Parameters in Bash
+
+When passing JavaScript regular expression literals (e.g. `/[a-z]/gim`) as command-line arguments to Node.js scripts in Bash, you may encounter unexpected behavior.  
+Bash typically interprets a leading `/` in arguments as the start of a file system path, causing tab-completion issues, unwanted pathname expansion, or errors if the path does not exist.
+
+To resolve this, **tin-args** introduces a simple prefix system:  
+You can pass regex arguments in the form of `"r/.../flags"` or `"re/.../flags"`.  
+This avoids Bash path interpretation and makes your CLI usage more robust and predictable.
+
+**Example:**
+
+```bash
+# yarn debug
+dev.js(v0.1.1): {
+  re0: /[a-z0-0]/gim,
+  re1: /\.m?js$/gim,
+  re2: /\.(j|t)s$/gim,
+  re3: /a|b/gi,
+  regex: /(?<=reference path=")(\.\.)(?=\/index.d.ts")/
+}
+# node ./arg-test.js -re0 "r/[a-z0-0]/gim" -re1 "r/\.m?js$/gim" -re2 "r/\.(j|t)s$/gim" -re3 "r/a|b/gi" -regex:"r/(?<=reference path=\")(\.\.)(?=\/index.d.ts\")/"
+dev.js(v0.1.1): {
+  re0: /[a-z0-0]/gim,
+  re1: /\.m?js$/gim,
+  re2: /\.(j|t)s$/gim,
+  re3: /a|b/gi,
+  regex: /(?<=reference path=")(\.\.)(?=\/index.d.ts")/
+}
+# node ./arg-test.js -re0 "/[a-z0-0]/gim" -re1 "/\.m?js$/gim" -re2 "/\.(j|t)s$/gim" -re3 "/a|b/gi" -regex:"/(?<=reference path=\")(\.\.)(?=\/index.d.ts\")/"
+dev.js(v0.1.1): {
+  re0: '/path/to/bash/root/[a-z0-0]/gim',
+  re1: undefined,
+  re2: undefined,
+  re3: '/path/to/bash/root/a|b/gi',
+  regex: '/path/to/bash/root/(?<=reference path=")(\\.\\.)(?=\\/index.d.ts")/'
+}
+```
+
+**Why this matters:**
+
+Without the `r/` or `re/` prefix, Bash may treat `/[a-z]/g` as a path,  
+which can result in incorrect command behavior, errors, or accidental path expansion. 
+
+By using a prefix and letting **tin-args** handle parsing, you ensure your regular expression arguments are interpreted exactly as intended.
+
+---
+
+### Note on Using RegExp Arguments in **package.json** Scripts
+
+When specifying CLI arguments directly in your terminal, Bash interprets leading slashes (`/`) in arguments as filesystem paths, which can cause unwanted expansion or errors.  
+However, when you run commands via `npm run` (i.e., using the `scripts` section of your `package.json`), **this pathname expansion does not occur**, and arguments like `/[a-z]/g` are passed to your script as-is.
+
+**Example usage in `package.json`:**
+
+```json
+{
+  "scripts": {
+    "debug": "node ./arg-test -re0 /[a-z0-0]/gim -re1 /\\.m?js$/gim -re2 \"/\\.(j|t)s$/gim\" -re3 \"/a|b/gi\" -regex:\"/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\""
+  }
+}
+```
+
+**Caveats:**  
+- Quotes are generally necessary for complex regexps or arguments containing spaces and special characters.
+- Behavior may still vary depending on your OS and shell, so testing is advised.
+
+**Summary:**  
+- When running commands directly in your terminal, you should use the `r/.../flags` prefix to avoid Bash's path expansion issues.
+- When using commands in `package.json` scripts via `npm run`, arguments starting with `/` are safe *and* do not trigger path expansion.
+
+  > __TIP__
+  >
+  > When your regex contains special shell characters like __`(`__, __`)`__, __`|`__, __`[`__, or __`]`__,  
+    you may need to wrap the argument in quotes to prevent the shell from interpreting them.
+  >
+  > + `r/[0-9a-z]/gi` -> `"r/[0-9a-z]/gi"`
+  >
+  > In such cases, you may also need to escape quotes (`"`) or other characters appropriately depending on your shell.
 
 ### Escaped commas
 

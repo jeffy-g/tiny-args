@@ -34,7 +34,8 @@
     "del:strictTag": "sed -i -zE 's/\\\"use strict\\\";\\n//' ./build/*.js",
     "test": "node ./arg-test -test \"re/(?<=reference path=\\\")(\\.)(?=\\/index.d.ts\\\")/\" -factor 123.5 -minify -values \"v0,v1,v2\" -values2 v0,v1,v2 -a \"['value0', 100, true, /\\r?\\n/g]\"",
     "test2": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:1.e3 -test \"re/\\.(j|t)s$/\" -str=\"ok\" -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\"",
-    "test3": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:-1.e3 -test \"r/\\.(j|t)s$/\" -str=ok -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\""
+    "test3": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:-1.e3 -test \"r/\\.(j|t)s$/\" -str=ok -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\"",
+    "debug": "node ./arg-test -re0 /[a-z0-0]/gim -re1 /\\.m?js$/gim -re2 \"/\\.(j|t)s$/gim\" -re3 \"/a|b/gi\" -regex:\"/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\""
   },
   "devDependencies": {
     "@types/node": "^17.0.32"
