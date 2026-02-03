@@ -1,6 +1,6 @@
 {
   "name": "tin-args",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "Simple command line argument extraction script with no complicated feature",
   "keywords": [
     "args",
@@ -32,6 +32,7 @@
     "postbuild": "prettier --ignore-path '' -w build && yarn minify && cat build/index.mini.js > ./index.js",
     "minify": "cat build/dev.js > build/index.js && jstool -cmd rmc -basePath build -test re/index\\.js/ && jstool -cmd minify -basePath build -test re/index\\.js/",
     "v:tag": "bash scripts/tool.sh version",
+    "postv:tag": "yarn -s build",
     "test": "node ./arg-test -test \"re/(?<=reference path=\\\")(\\.)(?=\\/index.d.ts\\\")/\" -factor 123.5 -minify -values \"v0,v1,v2\" -values2 v0,v1,v2 -a \"['value0', 100, true, /\\r?\\n/g]\"",
     "test2": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:1.e3 -test \"re/\\.(j|t)s$/\" -str=\"ok\" -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\"",
     "test3": "node ./arg-test -isOk:true -count 0x12ab -num:0x123 -numE:-1.e3 -test \"r/\\.(j|t)s$/\" -str=ok -regex:\"re/(?<=reference path=\\\")(\\.\\.)(?=\\/index.d.ts\\\")/\"",
