@@ -132,6 +132,6 @@ const tinArgs = (acfg, dbg = false) => {
 
   return pms;
 };
-tinArgs.version = "v0.1.1";
+tinArgs.version = "v0.1.2";
 
 module.exports = tinArgs;

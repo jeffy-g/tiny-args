@@ -95,6 +95,10 @@ trim_and_publish() {
   fi
 }
 
+version() {
+  jstool -cmd version -extras src/dev.js
+}
+
 
 if [ ! -z "$1" ]; then
   fname=$1
