@@ -40,7 +40,7 @@ prepublish() {
   # local publish_version=$(get_publish_version)
   # save origin packag.json
   cat package.json > package.json.bak
-  orgpkg -p
+  orgpkg -p -k peerDependencies
   # restore origin package.json
   cat dist/package.json > package.json
 }
