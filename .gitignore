@@ -108,8 +108,6 @@ dist
 /index.mjs
 /tsconfig.json
 
-regexes.js
-yarn.lock
-memo.md
-/sample.ts
 AGENTS.md
+*memo*
+.codex
