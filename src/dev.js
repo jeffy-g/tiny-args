@@ -33,7 +33,8 @@ const parseValue = (v) => {
   // DEVNOTE: now possible to process array parameters
   // DEVNOTE: 2020/2/28 - support regex parameter
   // DEVNOTE: 2025/11/14 - support short prefix "r"
-  if (/^\[.+\]$/.test(v) || /^(?:re|r)?\/[^]+\/[dgimsuy]{0,7}$/.test(v)) {
+  // DEVNOTE: 2026/02/03 - support new regexp flag "v"
+  if (/^\[.+\]$/.test(v) || /^(?:re|r)?\/[^]+\/[dgimsuvy]{0,8}$/.test(v)) {
     /^(?:re|r)\//.test(v) && (v = v.slice(v.indexOf("/")));
     // value is array or regex
     return /** @type {string[] | RegExp} */(eval(v));
@@ -131,6 +132,6 @@ const tinArgs = (acfg, dbg = false) => {
 
   return pms;
 };
-tinArgs.version = "v0.1.1";
+tinArgs.version = "v0.1.3";
 
 module.exports = tinArgs;
